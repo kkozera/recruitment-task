@@ -25,7 +25,7 @@ public class GeoLocationService {
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
             return response.getBody();
         } catch (Exception e) {
-            return "Unknown"; // fallback
+            return "Unknown";
         }
     }
 }

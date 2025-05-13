@@ -2,6 +2,8 @@ package pl.kkozera.recruitment_task.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pl.kkozera.recruitment_task.configuration.ComplaintMapper;
@@ -11,6 +13,9 @@ import pl.kkozera.recruitment_task.dto.ComplaintResponseDTO;
 import pl.kkozera.recruitment_task.external.GeoLocationService;
 import pl.kkozera.recruitment_task.model.Complaint;
 import pl.kkozera.recruitment_task.persistence.ComplaintPersistenceService;
+import pl.kkozera.recruitment_task.validation.ComplaintValidator;
+
+import java.util.Optional;
 
 @Service
 public class ComplaintService {
@@ -26,14 +31,23 @@ public class ComplaintService {
     }
 
     public ComplaintResponseDTO addComplaint(ComplaintRequestDTO dto, HttpServletRequest request) {
-        String clientIp = getClientIp(request);
-        String country = geoLocationService.getCountryByIp(clientIp);
 
-        Complaint complaint = complaintMapper.toEntity(dto);
-        complaint.setCountry(country);
+        Optional<Complaint> existingComplaintOptional = persistenceService.findByProductIdAndSubmittedBy(dto.getProductId(), dto.getSubmittedBy());
+        Complaint complaint;
 
-        Complaint saved = persistenceService.save(complaint);
-        return complaintMapper.toDTO(saved);
+        if (existingComplaintOptional.isPresent()) {
+            complaint = existingComplaintOptional.get();
+            complaint.incrementSubmissionCount();
+        } else {
+            String clientIp = getClientIp(request);
+            String country = geoLocationService.getCountryByIp(clientIp);
+
+            complaint = complaintMapper.toEntity(dto);
+            complaint.setCountry(country);
+        }
+
+        complaint = persistenceService.save(complaint);
+        return complaintMapper.toDTO(complaint);
     }
 
     private String getClientIp(HttpServletRequest request) {
@@ -48,8 +62,10 @@ public class ComplaintService {
         return complaintMapper.toDTO(updated);
     }
 
-    public Page<ComplaintResponseDTO> getAllComplaints(int page, int size, String sortDirection) {
-        Page<Complaint> complaints = persistenceService.findAll(page, size, Sort.Direction.fromString(sortDirection));
-        return complaints.map(complaintMapper::toDTO);
+    public Page<ComplaintResponseDTO> getAllComplaints(int page, int size, String sortBy, String sortOrder) {
+        ComplaintValidator.validateSortField(sortBy);
+
+        return persistenceService.findAll(page, size, sortBy, sortOrder)
+                .map(complaintMapper::toDTO);
     }
 }

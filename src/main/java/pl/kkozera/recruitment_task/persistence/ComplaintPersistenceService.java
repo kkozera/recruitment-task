@@ -9,6 +9,7 @@ import pl.kkozera.recruitment_task.exception.ComplaintNotFoundException;
 import pl.kkozera.recruitment_task.model.Complaint;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ComplaintPersistenceService {
@@ -19,8 +20,9 @@ public class ComplaintPersistenceService {
         this.complaintRepository = complaintRepository;
     }
 
-    public Page<Complaint> findAll(int page, int size, Sort.Direction sortDirection) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "createdAt"));
+    public Page<Complaint> findAll(int page, int size, String sortBy, String sortOrder) {
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return complaintRepository.findAll(pageable);
     }
 
@@ -31,5 +33,9 @@ public class ComplaintPersistenceService {
 
     public Complaint save(Complaint complaint) {
         return complaintRepository.save(complaint);
+    }
+
+    public Optional<Complaint> findByProductIdAndSubmittedBy(Long productId, String submittedBy) {
+        return complaintRepository.findByProductIdAndSubmittedBy(productId, submittedBy);
     }
 }

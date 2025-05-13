@@ -34,11 +34,14 @@ public class Complaint {
     @Column(name = "submission_count", nullable = false)
     private Integer submissionCount = 1;
 
-    // --- Lifecycle Callback ---
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+
+    public void incrementSubmissionCount() {
+        submissionCount++;
     }
 }
