@@ -1,13 +1,28 @@
-# Complaint API
+# 📝 Complaint Management System
 
-This application provides an API for managing complaints. It allows users to add, view, and manage complaints related to products. The API also includes functionality to check for duplicate complaints based on the `product_id` and `submitted_by`.
+A simple **Spring Boot** REST API for managing **Customers** and their **Complaints**.
 
-## Features
+## 🚀 Features
 
-- Create new complaints
-- View complaints
-- Handle duplicates by updating the `submission_count`
-- Provides Swagger UI documentation for easy API exploration
+- Manage **Customers** with name & email
+- Manage **Complaints** linked to Customers
+- Pagination, Sorting, and Filtering support
+- Input validation and error handling
+- Kafka & Kafka UI implementation
+- Swagger UI for API documentation
+- Integration tests with Testcontainers
+- Dockerized with PostgreSQL database
+
+## 🛠️ Technologies
+
+- Java 24+ & Spring Boot 3
+- Spring Data JPA & Hibernate
+- PostgreSQL (Dockerized)
+- Kafka & UI
+- Spring Security (basic auth)
+- Swagger/OpenAPI UI
+- Testcontainers for integration tests
+- Docker & Docker Compose
 
 ## Prerequisites
 
@@ -26,25 +41,39 @@ To run the application directly from IntelliJ IDEA:
 
 1. Open the project in IntelliJ IDEA.
 2. Navigate to the `src/main/java/pl/kkozera/recruitment_task/` directory.
-3. Right-click on the main class (e.g., `RecruitmentTaskApplication.java`) and select **Run**.
-4. The application should start running on **localhost:8080**.
+3. Import project as Maven/Gradle project.
+2. Ensure **PostgreSQL** is running locally on port 5432 with these credentials:
+    - DB: complains
+    - User: appuser
+    - Password: apppass
+    - you can use this command if using docker:
+    ```bash
+       docker run -d --name my-postgres -e POSTGRES_USER=appuser -e POSTGRES_PASSWORD=apppass -e POSTGRES_DB=complains -p 5432:5432 postgres:15
+    ```
+3. Ensure **Kafka** is running locally on port 9092
+4. Right-click on the main class (e.g., `RecruitmentTaskApplication.java`) and select **Run**.
+5. The application should start running on **localhost:8080**.
 
 ### 2. **Running via Docker Compose**
 
-You can run the application and the PostgreSQL database using Docker Compose. This allows you to avoid manually setting up the database.
+You can run the application, kafka with zookeeper, kafka UI and the PostgreSQL database using Docker Compose. This
+allows you to avoid manually setting up the database.
 
 #### Steps to run via Docker Compose:
 
 1. Ensure Docker is running on your machine.
-2. In the project root directory, create a `.env` file to store environment variables (e.g., database URL).
-3. Ensure the `docker-compose.yml` and `Dockerfile` are in the root directory.
-4. From the project root, run the following command:
+2. Ensure the `docker-compose.yml` and `Dockerfile` are in the root directory.
+3. From the project root, run the following command:
 
     ```bash
     docker-compose up --build
     ```
 
-5. The application and the PostgreSQL database will be spun up in Docker containers. You can access the API at **http://localhost:8080**.
+4. The application and the other dependencies will be spun up in Docker containers. You can access the API at *
+   *http://localhost:8080**.
+5. Use /login page to login using these credentials:
+    - username: user
+    - password: fetch the password from logs of the application
 
 #### Configuration:
 
@@ -61,55 +90,12 @@ Swagger UI is available for API documentation.
 
 Here, you can view all the API endpoints and interact with the API directly.
 
----
+### 4. 📊 Kafka UI (Kafdrop)
 
-## API Endpoints
+Kafka messages can be viewed through the Kafka web UI:
 
-### 1. **Create a New Complaint**
+URL: http://localhost:9000
 
-- **Endpoint**: `POST /api/complaints`
-- **Request Body**:
-    ```json
-    {
-        "productId": 123,
-        "content": "Complaint content",
-        "submittedBy": "John Doe",
-        "country": "USA"
-    }
-    ```
-- **Response**:
-    - `201 Created` if the complaint is successfully created.
-    - If a duplicate complaint is found, the `submission_count` will be incremented.
-
-### 2. **Get All Complaints**
-
-- **Endpoint**: `GET /api/complaints`
-- **Response**: List of all complaints in the system, with pagination and sorting by `created_at`.
-
-### 3. **Get Complaint by ID**
-
-- **Endpoint**: `GET /api/complaints/{id}`
-- **Response**: Returns the complaint details by ID.
+Use this to inspect topics, messages, consumer groups, etc.
 
 ---
-
-## Docker Configuration
-
-### Dockerfile
-
-To build and run the application using Docker, we have included a `Dockerfile` that sets up the application container.
-
-#### Example `Dockerfile`:
-
-```Dockerfile
-# Use a Java base image
-FROM openjdk:17-jdk-slim
-
-# Set working directory
-WORKDIR /app
-
-# Copy the jar file into the container
-COPY target/recruitment-task.jar app.jar
-
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -25,8 +25,9 @@ public class Complaint {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "submitted_by", nullable = false, length = 255)
-    private String submittedBy;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
     @Column(name = "country", nullable = false, length = 100)
     private String country;

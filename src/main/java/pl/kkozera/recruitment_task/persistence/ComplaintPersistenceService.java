@@ -1,14 +1,11 @@
 package pl.kkozera.recruitment_task.persistence;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import pl.kkozera.recruitment_task.exception.ComplaintNotFoundException;
 import pl.kkozera.recruitment_task.model.Complaint;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,9 +17,7 @@ public class ComplaintPersistenceService {
         this.complaintRepository = complaintRepository;
     }
 
-    public Page<Complaint> findAll(int page, int size, String sortBy, String sortOrder) {
-        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+    public Page<Complaint> findAll(Pageable pageable) {
         return complaintRepository.findAll(pageable);
     }
 
@@ -35,7 +30,7 @@ public class ComplaintPersistenceService {
         return complaintRepository.save(complaint);
     }
 
-    public Optional<Complaint> findByProductIdAndSubmittedBy(Long productId, String submittedBy) {
-        return complaintRepository.findByProductIdAndSubmittedBy(productId, submittedBy);
+    public Optional<Complaint> findByProductIdAndCustomerId(Long productId, Long customerId) {
+        return complaintRepository.findByProductIdAndCustomerId(productId, customerId);
     }
 }
