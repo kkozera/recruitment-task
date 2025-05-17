@@ -23,6 +23,9 @@ A simple **Spring Boot** REST API for managing **Customers** and their **Complai
 - Swagger/OpenAPI UI
 - Testcontainers for integration tests
 - Docker & Docker Compose
+- Elasticsearch – Search and analytics engine for logs. 
+- Logstash – Collects and processes logs from the application.
+- Kibana – Web interface for visualizing logs.
 
 ## Prerequisites
 
@@ -63,14 +66,15 @@ allows you to avoid manually setting up the database.
 
 1. Ensure Docker is running on your machine.
 2. Ensure the `docker-compose.yml` and `Dockerfile` are in the root directory.
-3. From the project root, run the following command:
-
+3. From the project root, run the following commands:
+    ```bash
+    ./gradlew clean build
+    ```
     ```bash
     docker-compose up --build
     ```
 
-4. The application and the other dependencies will be spun up in Docker containers. You can access the API at *
-   *http://localhost:8080**.
+4. The application and the other dependencies will be spun up in Docker containers. You can access the API at **http://localhost:8080**.
 5. Use /login page to login using these credentials:
     - username: user
     - password: fetch the password from logs of the application
@@ -97,5 +101,14 @@ Kafka messages can be viewed through the Kafka web UI:
 URL: http://localhost:9000
 
 Use this to inspect topics, messages, consumer groups, etc.
+
+### 5. 📊 Viewing Logs in Kibana
+Open http://localhost:5601
+
+Go to Management → Stack Management → Index Patterns
+
+Create an index pattern (e.g., app-logs-*)
+
+Use Discover to explore logs in real time
 
 ---

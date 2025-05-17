@@ -1,6 +1,7 @@
 package pl.kkozera.recruitment_task.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import pl.kkozera.recruitment_task.persistence.CustomerPersistenceService;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ComplaintService {
 
@@ -42,9 +44,11 @@ public class ComplaintService {
         Complaint complaint;
 
         if (existingComplaintOptional.isPresent()) {
+            log.info("Complaint with productId = {} and customerId = {} already exists. Incrementing submissionCount", dto.getProductId(), dto.getCustomerId());
             complaint = existingComplaintOptional.get();
             complaint.incrementSubmissionCount();
         } else {
+            log.info("Creating new complaint for productId = {} and customerId = {}", dto.getProductId(), dto.getCustomerId());
             complaint = createNewComplaint(dto, request);
         }
 
@@ -65,6 +69,8 @@ public class ComplaintService {
     public ComplaintResponseDTO patchComplaintContent(Long id, ComplaintPatchDTO dto) {
         Complaint complaint = complaintPersistenceService.findById(id);
         complaint.setContent(dto.getContent());
+
+        log.info("Patching complaint: {}", id);
         Complaint updated = complaintPersistenceService.save(complaint);
         return complaintMapper.toDTO(updated);
     }

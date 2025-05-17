@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Setter
 @Getter
 @Entity
+@ToString
 @Table(name = "customer")
 @NoArgsConstructor
 public class Customer {

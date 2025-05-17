@@ -18,6 +18,8 @@ services:
       EXTERNAL_GEO_IP_URL: https://ipapi.co/
       EXTERNAL_GEO_IP_TIMEOUT: 3
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOGSTASH_HOST: logstash
+      LOGSTASH_PORT: 5000
 
   db:
     image: postgres:15
@@ -66,5 +68,41 @@ services:
     depends_on:
       - kafka
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.2
+    container_name: logstash
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logstash-pipeline:/usr/share/logstash/pipeline
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+
 volumes:
   pgdata:
+  esdata:
